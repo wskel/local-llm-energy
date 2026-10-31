@@ -1,0 +1,28 @@
+﻿{
+    "date":  "2026-10-31",
+    "gpu":  "AMD Radeon RX 6800",
+    "model":  "Qwen3.8-27B-UD-Q3_K_XL.gguf",
+    "server_args":  "-ngl 999 -fa off -c 16384 -np 1",
+    "power_source":  "amd-adlx",
+    "board_power_factor":  1.23,
+    "idle_chip_w":  13,
+    "phases":  {
+                   "decode_short":  {
+                                        "tps":  25.06,
+                                        "tokens":  2500,
+                                        "chip_w":  226.6
+                                    },
+                   "prefill":  {
+                                   "tps":  268.23,
+                                   "tokens":  12865,
+                                   "chip_w":  223.9
+                               },
+                   "decode_deep":  {
+                                       "tps":  22.02,
+                                       "tokens":  300,
+                                       "depth":  12865,
+                                       "chip_w":  226.4
+                                   }
+               },
+    "notes":  "Measured with scripts/Measure-Power.ps1 -PromptLines 600 on Windows 10, llama.cpp b12019 + PRs #29772/#30139 (Vulkan). decode_deep is a 300-token burst right after the prompt and can read faster than decode_short (2500 tokens), likely GPU clock state; treat the pair as a range."
+}

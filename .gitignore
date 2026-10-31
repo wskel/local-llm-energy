@@ -1,0 +1,8 @@
+config*.psd1
+!config.example.psd1
+results/raw/
+.deps/
+*.exe
+*.obj
+*.pdb
+*.log
