@@ -6,20 +6,29 @@ This measures your card's real power draw and speed while a local model works, t
 
 ## Requirements
 
-- Windows with PowerShell 5.1 or 7
+- **PowerShell:** Windows PowerShell 5.1, or [PowerShell 7](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) on Windows, Linux or macOS (`pwsh`)
 - A llama.cpp `llama-server` build and a GGUF model
-- Power readings from one of:
-  - **AMD:** the Adrenalin driver, plus Visual Studio Build Tools (C++ workload) and git, to build the small ADLX sampler
-  - **NVIDIA:** `nvidia-smi`, which comes with the driver (this path is written but not yet tested on real hardware)
+- A power source, set with `PowerSource` in the config:
+
+| Platform | GPU | `PowerSource` | Needs | Tested |
+|---|---|---|---|---|
+| Windows | AMD | `amd-adlx` | Adrenalin driver, plus Visual Studio Build Tools (C++) and git to build the sampler | Yes (RX 6800) |
+| Linux | AMD | `amd-sysfs` | amdgpu driver (reads `/sys/class/drm/.../power1_average`) | Not yet |
+| Windows, Linux | NVIDIA | `nvidia-smi` | NVIDIA driver | Not yet |
+| macOS | Apple Silicon | `macos-powermetrics` | Your sudo password (powermetrics needs root) | Not yet |
+
+The cost calculator itself is plain arithmetic and runs anywhere PowerShell does.
 
 ## Quick start
 
 ```powershell
-Copy-Item config.example.psd1 config.psd1     # then edit paths, flags, rate
-./power/amd-adlx/build.ps1                    # AMD only
+Copy-Item config.example.psd1 config.psd1     # then edit paths, flags, power source, rate
+./power/amd-adlx/build.ps1                    # Windows + AMD only
 ./scripts/Measure-Power.ps1                   # 3-6 minutes; stop other llama-server instances first
 ./scripts/Get-EnergyCost.ps1 -Results results/raw/<timestamp>.json
 ```
+
+On Linux and macOS, run these from `pwsh`.
 
 `Get-EnergyCost.ps1` prints Markdown tables. Pass `-RatePerKwh` to try another rate without editing the config.
 
@@ -60,6 +69,7 @@ AMD reports chip power only. These results use a board-power factor of 1.23, fro
 
 ## Caveats
 
+- **On Macs, GPU power only.** powermetrics doesn't include unified memory or the CPU, so Mac figures are a lower bound.
 - **Card power only.** The rest of the PC isn't counted. If the PC would be on anyway, that's the right comparison; otherwise use a plug-in meter.
 - **Compare hosted prices within one benchmark.** CursorBench and the Artificial Analysis Index use different tasks, so their per-task costs aren't comparable with each other. Prices also change: refresh `Hosted` in your config.
 - **Cost per attempt isn't cost per solved task.** A weaker local model that fails more often can still cost you the hosted price on top. In practice the electricity is rarely the deciding factor; your time and success rate are.

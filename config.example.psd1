@@ -1,6 +1,7 @@
 # Copy to config.psd1 (git-ignored) and edit.
 @{
     # llama.cpp server binary and GGUF model to measure.
+    # e.g. 'C:/llm/llama.cpp/llama-server.exe', '/usr/local/bin/llama-server', '/opt/homebrew/bin/llama-server'
     ServerExe  = 'C:/llm/llama.cpp/llama-server.exe'
     Model      = 'C:/llm/models/model.gguf'
 
@@ -9,13 +10,21 @@
     # On NVIDIA and newer AMD cards, measure both; 'on' is usually faster.
     ServerArgs = @('-ngl', '999', '-fa', 'off', '-c', '65536', '-np', '1')
 
-    # 'amd-adlx' (Windows, AMD driver) or 'nvidia-smi'.
+    # Where power readings come from:
+    #   'amd-adlx'            Windows, AMD (build power/amd-adlx first)
+    #   'amd-sysfs'           Linux, AMD (amdgpu driver; needs PowerShell 7)
+    #   'nvidia-smi'          Windows or Linux, NVIDIA
+    #   'macos-powermetrics'  macOS, Apple Silicon (asks for your sudo password)
     PowerSource = 'amd-adlx'
 
-    # AMD's driver reports GPU chip power only. Set this to your card's rated board power divided by
-    # its chip power limit (TGP) to estimate the whole card, e.g. RX 6800: 250 W / 203 W = 1.23.
-    # nvidia-smi already reports board power: leave at 1.0.
+    # AMD drivers (amd-adlx, amd-sysfs) report GPU chip power only. Set this to your card's rated
+    # board power divided by its chip power limit (TGP) to estimate the whole card,
+    # e.g. RX 6800: 250 W / 203 W = 1.23. nvidia-smi already reports board power: leave at 1.0.
+    # powermetrics reports the GPU only; memory and CPU aren't included, so 1.0 is a lower bound.
     BoardPowerFactor = 1.0
+
+    # Optional label for results; detected automatically on Windows and with nvidia-smi.
+    # GpuName = 'AMD Radeon RX 6800'
 
     # Your marginal price per kWh: add every per-kWh line on the bill (delivery AND supply),
     # apply percentage surcharges, and leave out fixed monthly fees.

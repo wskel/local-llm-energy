@@ -23,13 +23,17 @@ All scripts live in this repository. Run them; don't reimplement the arithmetic.
 **2. Config.** Copy `config.example.psd1` to `config.psd1`. Set:
 - `ServerExe` and `Model` (any GGUF).
 - `ServerArgs`: the flags the user actually serves with, so the measurement matches real use.
-- `PowerSource`: `amd-adlx` or `nvidia-smi`.
-- `BoardPowerFactor`: for AMD, the card's rated board power ÷ chip power limit (TGP), because ADLX reports chip power only. For NVIDIA, 1.0.
+- `PowerSource`:
+  - `amd-adlx` for Windows with AMD;
+  - `amd-sysfs` for Linux with AMD;
+  - `nvidia-smi` for NVIDIA on Windows or Linux;
+  - `macos-powermetrics` for Apple Silicon.
+- `BoardPowerFactor`: for AMD, the card's rated board power ÷ chip power limit (TGP), because AMD drivers report chip power only. For NVIDIA, 1.0. For macOS, 1.0, and say the result is a lower bound: GPU only, with no unified memory or CPU.
 - `RatePerKwh`.
 
 For a second model, use a separate file such as `config-modelname.psd1`, which is also git-ignored.
 
-**3. Sampler.** AMD: run `power/amd-adlx/build.ps1` once. It clones the ADLX headers at a pinned commit and builds `gpupower.exe`. NVIDIA: needs nothing.
+**3. Sampler.** Windows with AMD: run `power/amd-adlx/build.ps1` once. It clones the ADLX headers at a pinned commit and builds `gpupower.exe`. The other sources need nothing extra. On Linux and macOS, the scripts need PowerShell 7 (`pwsh`). On macOS, warn the user that a sudo password prompt will appear for powermetrics.
 
 **4. Measure.** Stop any other `llama-server` first; the script refuses to run otherwise. Then run `scripts/Measure-Power.ps1 [-Config <file>]`. It takes 3–6 minutes. It starts its own key-less server on a random localhost port, so never pass the user's API key. If the server exits during load, the context doesn't fit in VRAM: lower `-c` in `ServerArgs`, and keep `-PromptLines` × 21 tokens below the context size. `-Quick` only checks that the setup works.
 

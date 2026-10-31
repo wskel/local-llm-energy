@@ -8,7 +8,7 @@ cost-per-task and break-even tables, printed as Markdown.
 #>
 param(
     [Parameter(Mandatory)][string]$Results,
-    [string]$Config = (Join-Path $PSScriptRoot '..\config.psd1'),
+    [string]$Config = (Join-Path (Split-Path $PSScriptRoot -Parent) 'config.psd1'),
     [double]$RatePerKwh
 )
 $ErrorActionPreference = 'Stop'
